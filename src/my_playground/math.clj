@@ -1,5 +1,5 @@
 ;
-; Stuff related to combinatorics
+; Stuff related to math
 ;
 
 (ns my-playground.math)
@@ -40,8 +40,8 @@
   (map #(conj % e) colls))
 
 ;
-; Produces a sequence of permutations of elements in s of length n.  If length
-; is not specified, it defaults to size of set.
+; Produces a sequence of n-permutations of elements in s.  If length is not 
+; specified, it defaults to size of set.
 ;
 ; Example:
 ;   s = #{1 2 3}
@@ -65,8 +65,8 @@
                          (split s)))))
 
 ;
-; Produces a sequence of combinations of elements in s of length n.  Each
-; combination is a set.
+; Produces a sequence of n-combinations of elements in s.  Each combination 
+; is itself a set.
 ;
 ; Example:
 ;   s = #{1 2 3 4}
