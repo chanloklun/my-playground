@@ -21,9 +21,9 @@
 ;
 ; Example:
 ;   e = 4, colls = ([1 2] [2 3] [1 3])
-;   (conj-elem e colls) = ([1 2 4] [2 3 4] [1 3 4])
+;   (conj-elem-to-colls e colls) = ([1 2 4] [2 3 4] [1 3 4])
 ;
-(defn conj-elem [e colls]
+(defn conj-elem-to-colls [e colls]
   (map #(conj % e) colls))
 
 ;
@@ -32,8 +32,8 @@
 ;
 ; Example:
 ;   s = #{1 2 3}
-;   (permutation s) = ([1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1])
-;   (permutation s 2) = ([1 2] [1 3] [2 1] [2 3] [3 1] [3 2])
+;   (permutation-gen s) = ([1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1])
+;   (permutation-gen s 2) = ([1 2] [1 3] [2 1] [2 3] [3 1] [3 2])
 ;
 ; Implementation Notes:
 ;   The idea is to generate all permutations recursively.  Suppose you have
@@ -47,8 +47,8 @@
   ([s n] (cond
            (or (neg? n) (> n (count s))) (throw (IllegalArgumentException. "Invalid length n"))
            (or (zero? n) (empty? s)) [[]]
-           :else (mapcat (fn [[e remaining]]
-                           (conj-elem e (permutation-gen remaining (dec n))))
+           :else (mapcat (fn [[x remaining]]
+                           (conj-elem-to-colls x (permutation-gen remaining (dec n))))
                          (split s)))))
 
 ;
@@ -57,7 +57,7 @@
 ;
 ; Example:
 ;   s = #{1 2 3 4}
-;   (combination s 2) = (#{1 2} #{1 3} #{1 4} #{2 3} #{2 4} #{3 4})
+;   (combination-gen s 2) = (#{1 2} #{1 3} #{1 4} #{2 3} #{2 4} #{3 4})
 ;
 ; Implementation Notes:
 ;   Again, we use recursion.  Combinations of length n for set s = #{x1 x2 ...
@@ -72,8 +72,8 @@
     (or (neg? n) (> n (count s))) (throw (IllegalArgumentException. "Invalid length n"))
     (zero? n) [#{}]
     (= n (count s)) [s]
-    :else (let [e (first s)
-                remaining (disj s e)]
-            (concat (conj-elem e (combination-gen remaining (dec n)))
+    :else (let [x (first s)
+                remaining (disj s x)]
+            (concat (conj-elem-to-colls x (combination-gen remaining (dec n)))
                     (combination-gen remaining n)))))
 
