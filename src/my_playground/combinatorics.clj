@@ -13,7 +13,7 @@
 ;   (split s) = ([1 #{2 3 4}] [2 #{1 3 4}] [3 #{1 2 4}] ...)
 ;
 (defn split [s]
-  (map #(vector % (disj s %)) s))
+  (map (fn [x] [x (disj s x)]) s))
 
 ;
 ; Returns a sequence with element e conj'ed to each collection in the sequence
