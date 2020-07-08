@@ -8,14 +8,14 @@
 ; Returns an infinite sequence of Fibonacci numbers.  Note that F(0)=F(1)=1.
 ;
 (defn fibonacci-seq
-  ([] (fib-seq [0 1]))
-  ([[x y]] (lazy-seq (cons y (fib-seq [y (+ y x)])))))
+  ([] (fibonacci-seq [0 1]))
+  ([[x y]] (lazy-seq (cons y (fibonacci-seq [y (+ y x)])))))
 
 ;
 ; Returns the nth Fibonacci number.  Note that F(0)=F(1)=1.
 ;
 (defn fibonacci [n]
-  (nth (fib-seq) n))
+  (nth (fibonacci-seq) n))
 
 ;
 ; Takes a set of elements s = #{x1 x2 x3 ... xn} and returns a sequence of
