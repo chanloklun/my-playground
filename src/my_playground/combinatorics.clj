@@ -5,12 +5,12 @@
 (ns my-playground.combinatorics)
 
 ;
-; Takes a set of elements s = #{x1, x2, x3, ..., xn} and returns a
-; sequence of 2-element vectors in the form of [x s\{x}] for each x in s.
+; Takes a set of elements s = #{x1 x2 x3 ... xn} and returns a sequence of
+; 2-element vectors in the form of [x s\{x}] for each x in s.
 ;
 ; Example:
 ;   s = #{1 2 3 4},
-;   (split s) = ([1 #{2 3 4}] [2 #{1 3 4}] [3 #{1 2 4}] ...)
+;   (split s) = ([1 #{2 3 4}] [2 #{1 3 4}] [3 #{1 2 4}] [4 #{1 2 3})
 ;
 (defn split [s]
   (map (fn [x] [x (disj s x)]) s))
