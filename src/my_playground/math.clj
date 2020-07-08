@@ -2,7 +2,20 @@
 ; Stuff related to combinatorics
 ;
 
-(ns my-playground.combinatorics)
+(ns my-playground.math)
+
+;
+; Returns an infinite sequence of Fibonacci numbers.  Note that F(0)=F(1)=1.
+;
+(defn fibonacci-seq
+  ([] (fib-seq [0 1]))
+  ([[x y]] (lazy-seq (cons y (fib-seq [y (+ y x)])))))
+
+;
+; Returns the nth Fibonacci number.  Note that F(0)=F(1)=1.
+;
+(defn fibonacci [n]
+  (nth (fib-seq) n))
 
 ;
 ; Takes a set of elements s = #{x1 x2 x3 ... xn} and returns a sequence of
