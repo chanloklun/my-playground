@@ -49,8 +49,8 @@
 ;
 ; Example:
 ;   s = #{1 2 3}
-;   (permutation-gen s) = ([1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1])
-;   (permutation-gen s 2) = ([1 2] [1 3] [2 1] [2 3] [3 1] [3 2])
+;   (permutations s) = ([1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1])
+;   (permutations s 2) = ([1 2] [1 3] [2 1] [2 3] [3 1] [3 2])
 ;
 ; Implementation Notes:
 ;   The idea is to generate all permutations recursively.  Suppose you have
@@ -74,7 +74,7 @@
 ;
 ; Example:
 ;   s = #{1 2 3 4}
-;   (combination-gen s 2) = (#{1 2} #{1 3} #{1 4} #{2 3} #{2 4} #{3 4})
+;   (combinations s 2) = (#{1 2} #{1 3} #{1 4} #{2 3} #{2 4} #{3 4})
 ;
 ; Implementation Notes:
 ;   Again, we use recursion.  Combinations of length n for set s = #{x1 x2 ...
