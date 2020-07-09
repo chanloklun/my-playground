@@ -4,6 +4,8 @@
 
 (ns my-playground.math)
 
+;;;; Fibonacci
+
 ;
 ; Returns an infinite sequence of Fibonacci numbers.  Note that F(0)=F(1)=1.
 ;
@@ -16,6 +18,8 @@
 ;
 (defn fibonacci [n]
   (nth (fibonacci-seq) n))
+
+;;;; Combinatorics
 
 ;
 ; Takes a set of elements s = #{x1 x2 x3 ... xn} and returns a sequence of
@@ -90,3 +94,102 @@
             (concat (conj-elem-to-colls x (combination-gen remaining (dec n)))
                     (combination-gen remaining n)))))
 
+;;;; Newton's Method
+
+;
+; As someone who comes from Java, this is truly eye opening. With just 30 lines
+; of code, I have written a generic equation solver that utilizes the Newton's
+; method.  By generic, I mean I don't need to write a specific program to
+; solve, say x^2 = 0, and another one for, say, 7x^3 + 2x^2 + x - 19 = 0.  With
+; Clojure, my equation solver below takes an "equation" as a function and
+; generates functions necessary to compute via Newton's Method.  It's not just
+; code size but also its expressiveness. I don't even know if it's possible to
+; do this in Java.
+;
+
+;
+; A generator takes a function g and returns a sequence generating function
+; that takes a single input, x, and produces
+;     (g(x), g(g(x)), g(g(g(x))) ...)
+;
+(defn generator [g]
+  (fn next-val [x]
+    (lazy-seq (cons x (next-val (g x))))))
+
+;
+; In calculus, the derivative of function f is defined as
+;     limit (f(x+h) - f(x)) / h
+;     h-> 0
+; The expression inside the limit is called the Newton Quotient.  This Clojure
+; function returns the Newton Quotient for a given function f.
+;
+(defn newton-quotient [f]
+  (fn [x h]
+    (/ (- (f (+ x h)) (f x)) h)))
+
+;
+; limit takes a function df that represents the Newton Quotient defined above
+; and produces a function that computes the limit as h -> 0.  It also takes an
+; option parameter, epsilon, that will be used as the convergence criteria.
+; If epsilon is omitted, it takes the value of 1.0e-6 (i.e. 1/1000000).
+;
+; The implementation first produces a sequence of numbers that tends to zero.
+; For simplicity, I use (1, 0.1, 0.01, 0.001, 0.0001 ...).  The values in
+; this sequence are successively used as values of h to compute the Newton
+; Quotient, thus simulating the limit process.  The process stops (i.e. we
+; found a limit) when the absolute difference between successive calculations
+; of the Newton Quotient is within epsilon.
+;
+(defn limit
+  ([df] (limit df 1.0e-6))
+  ([df epsilon]
+   (fn [x]
+     (let [tends-to-zero (generator #(/ % 10.0))]
+       (reduce
+         (fn [prev curr]
+           (if (<= (Math/abs (- curr prev)) epsilon)
+             (reduced curr) curr))
+         (map #(df x %) (tends-to-zero 1)))))))
+
+;
+; derivative returns the derivative function of f
+;
+(defn derivative [f]
+  (limit (newton-quotient f)))
+
+;
+; newton-method uses an initial guess and produces a sequence of successively
+; better approximations as solutions to the equation f(x)=0 using the Newton's
+; Method.  In short, if you have an approximate solution, x0, for f(x) = 0,
+; Newton's Method tells you that a better approximation is given by
+; x1 = x0 - f(x0)/f'(x0) where f'(x0) is the derivative of f evaluated at x0.
+; Consequently, you can compute better and better solutions by applying
+; the same formula to each successive approximation.
+;
+(defn newton-method [f guess]
+  (let [df (derivative f)
+        g (fn [x] (- x (/ (f x) (df x))))]
+    ((generator g) guess)))
+
+;
+; solve-by-newton takes a function f, an initial guess, an optional epsilon
+; and solves the equation f(x)=0 using Newton's Method.  As explained above,
+; Newton's Method is an algorithm that produces better and better approximate
+; solutions to the equation.  The parameter epsilon serves as the exit criteria
+; to the algorithm.  When a solution x satisfies abs(f(x)) <= epsilon, it
+; returns x as the solution.  If epsilon is omitted, it takes the default value
+; of 1.0e-6 (i.e. 1/1000000).
+;
+; Example:
+;   Say we want to solve x^2 = 2.  We first rewrite it as x^2 - 2 = 0 and let
+;   f(x) = x^2 - 2.  In Clojure, this function is written as #(- (* % %) 2)
+;   or (fn [x] (- (* x x) 2)).  And we set our initial guess to be 1.
+;
+;   (solve-by-newton #(- (* % %) 2) 1)
+;   ;; => 1.4142135623747674
+;
+(defn solve-by-newton
+  ([f guess] (solve-by-newton f guess 1.0e-6))
+  ([f guess epsilon]
+   (first (filter #(<= (Math/abs (f %)) epsilon)
+                  (newton-method f guess)))))
