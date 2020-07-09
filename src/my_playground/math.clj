@@ -59,13 +59,13 @@
 ;   the beginning of each length (n-1) permutations to obtain all length n
 ;   permutations beginning with x1.  Repeat same procedure for x2, x3 ... xm.
 ;
-(defn permutation-gen
-  ([s] (permutation-gen s (count s)))
+(defn permutations
+  ([s] (permutations s (count s)))
   ([s n] (cond
            (or (neg? n) (> n (count s))) (throw (IllegalArgumentException. "Invalid length n"))
            (or (zero? n) (empty? s)) [[]]
            :else (mapcat (fn [[x remaining]]
-                           (conj-elem-to-colls x (permutation-gen remaining (dec n))))
+                           (conj-elem-to-colls x (permutations remaining (dec n))))
                          (split s)))))
 
 ;
@@ -84,15 +84,15 @@
 ;   Finally, union this first set of results with all combinations of length n
 ;   for set #{x2 x3 ... xm}.
 ;
-(defn combination-gen [s n]
+(defn combinations [s n]
   (cond
     (or (neg? n) (> n (count s))) (throw (IllegalArgumentException. "Invalid length n"))
     (zero? n) [#{}]
     (= n (count s)) [s]
     :else (let [x (first s)
                 remaining (disj s x)]
-            (concat (conj-elem-to-colls x (combination-gen remaining (dec n)))
-                    (combination-gen remaining n)))))
+            (concat (conj-elem-to-colls x (combinations remaining (dec n)))
+                    (combinations remaining n)))))
 
 ;;;; Newton's Method
 
