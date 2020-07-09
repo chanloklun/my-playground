@@ -124,7 +124,7 @@
 ; function returns the Newton Quotient for a given function f.
 ;
 (defn newton-quotient [f]
-  (fn [x h]
+  (fn [h x]
     (/ (- (f (+ x h)) (f x)) h)))
 
 ;
@@ -140,7 +140,17 @@
 ; found a limit) when the absolute difference between successive calculations
 ; of the Newton Quotient is within epsilon.
 ;
-(defn limit
+; TODO:
+; Upon further testing, it doesn't always work and it depends on the function
+; in concern.  The problem seems to be the inexact nature of floating point
+; arithmetic.  When h is super small (e.g. 1.0e-12), f(x+h)-f(x) returns 0 even
+; though it's not zero but because there's not enough precision to deal with
+; small floating point values.  This results in derivative being 0 and the
+; Newton's method formula x-f(x)/f'(x) throwing a nasty divide by 0 exception.
+; I tried fixing it with big decimal but that doesn't quite work either.  Need
+; further investigation.
+;
+#_(defn limit
   ([df] (limit df 1.0e-6))
   ([df epsilon]
    (fn [x]
@@ -149,13 +159,19 @@
          (fn [prev curr]
            (if (<= (Math/abs (- curr prev)) epsilon)
              (reduced curr) curr))
-         (map #(df x %) (tends-to-zero 1)))))))
+         (map #(df % x) (tends-to-zero 1)))))))
 
 ;
 ; derivative returns the derivative function of f
 ;
-(defn derivative [f]
+; TODO:
+; See item above.  Right now, just use a small enough h and avoid simulating
+; the limit process.
+;
+#_(defn derivative [f]
   (limit (newton-quotient f)))
+(defn derivative [f]
+  (partial (newton-quotient f) 1.0e-6))
 
 ;
 ; newton-method uses an initial guess and produces a sequence of successively
@@ -186,7 +202,7 @@
 ;   or (fn [x] (- (* x x) 2)).  And we set our initial guess to be 1.
 ;
 ;   (solve-by-newton #(- (* % %) 2) 1)
-;   ;; => 1.4142135623747674
+;   ;; => 1.4142156871995384
 ;
 (defn solve-by-newton
   ([f guess] (solve-by-newton f guess 1.0e-6))
