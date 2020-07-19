@@ -108,15 +108,6 @@
 ;
 
 ;
-; A generator takes a function g and returns a sequence generating function
-; that takes a single input, x, and produces
-;     (g(x), g(g(x)), g(g(g(x))) ...)
-;
-(defn generator [g]
-  (fn next-val [x]
-    (lazy-seq (cons x (next-val (g x))))))
-
-;
 ; In calculus, the derivative of function f is defined as
 ;     limit (f(x+h) - f(x)) / h
 ;     h-> 0
@@ -154,12 +145,11 @@
   ([df] (limit df 1.0e-6))
   ([df epsilon]
    (fn [x]
-     (let [tends-to-zero (generator #(/ % 10.0))]
-       (reduce
-         (fn [prev curr]
-           (if (<= (Math/abs (- curr prev)) epsilon)
-             (reduced curr) curr))
-         (map #(df % x) (tends-to-zero 1)))))))
+     (reduce
+       (fn [prev curr]
+         (if (<= (Math/abs (- curr prev)) epsilon)
+           (reduced curr) curr))
+       (map #(df % x) (iterate #(/ % 10.0) 1))))))
 
 ;
 ; derivative returns the derivative function of f
@@ -185,7 +175,7 @@
 (defn newton-method [f guess]
   (let [df (derivative f)
         g (fn [x] (- x (/ (f x) (df x))))]
-    ((generator g) guess)))
+    (iterate g guess)))
 
 ;
 ; solve-by-newton takes a function f, an initial guess, an optional epsilon
